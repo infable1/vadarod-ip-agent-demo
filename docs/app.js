@@ -121,6 +121,23 @@ function renderDocument(d) {
   </table></details>`;
 }
 
+// Расходы по категориям: горизонтальные столбцы, одна серия, значения подписаны текстом
+function spendingChart(steps) {
+  const res = (steps || []).find((s) => s.type === "tool_result" && s.title.startsWith("summarize_spending"));
+  const cats = res?.detail?.data?.expenses_by_category;
+  if (!cats || !Object.keys(cats).length) return "";
+  const rows = Object.entries(cats).map(([k, v]) => [k, Number(v)]).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(...rows.map((r) => r[1]));
+  const total = rows.reduce((a, r) => a + r[1], 0);
+  return `<figure class="bars" aria-label="Расходы по категориям">
+    <figcaption>Расходы по категориям, BYN</figcaption>
+    ${rows.map(([k, v]) => `<div class="bar-row" title="${esc(k)}: ${money(v)} BYN · ${Math.round(v / total * 100)}%">
+      <span class="bar-label">${esc(k)}</span>
+      <span class="bar-track"><span class="bar" style="width:${Math.max(v / max * 100, 1.5)}%"></span></span>
+      <span class="bar-value">${money(v)}</span></div>`).join("")}
+  </figure>`;
+}
+
 async function refreshPending() {
   if (!state.sessionId) return renderPending([]);
   const res = await fetch(`/api/sessions/${state.sessionId}/pending`);
@@ -163,7 +180,9 @@ async function send(text) {
     const r = await api("/api/chat", { message: text, session_id: state.sessionId });
     state.sessionId = r.session_id; localStorage.setItem("sessionId", r.session_id);
     typing.remove();
-    addMessage("agent", r.answer);
+    const msg = addMessage("agent", r.answer);
+    const chart = spendingChart(r.steps);
+    if (chart) msg.querySelector(".bubble").insertAdjacentHTML("beforeend", chart);
     renderSteps(r.steps, r.trace_id);
     renderPending(r.pending);
   } catch (e) {

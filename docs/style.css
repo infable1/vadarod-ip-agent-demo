@@ -129,3 +129,14 @@ button:disabled { opacity: .5; cursor: default; }
 .doc th { text-align: left; vertical-align: top; color: var(--muted); font-weight: 500; padding: 4px 8px 4px 0; width: 90px; }
 .doc td { padding: 4px 0; border-bottom: 1px dashed var(--line); }
 .doc .mono { font-size: 11px; }
+
+.bars { margin: 10px 0 2px; padding: 10px 0 0; border-top: 1px solid var(--line); }
+.bars figcaption { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.bar-row { display: grid; grid-template-columns: 120px 1fr 80px; align-items: center; gap: 8px;
+  padding: 3px 0; font-size: 13px; cursor: default; }
+.bar-row:hover .bar { filter: brightness(1.15); }
+.bar-row:hover .bar-label { color: var(--ink); }
+.bar-label { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { height: 10px; }
+.bar { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
+.bar-value { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
