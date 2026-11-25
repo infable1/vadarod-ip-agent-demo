@@ -155,8 +155,8 @@ async function confirmPayment(p, card, { silent = false } = {}) {
   } catch (e) {
     card.querySelector(".err").textContent = e.message;
     card.querySelectorAll("button").forEach((b) => (b.disabled = false));
-    if (e.code !== "OTP_INVALID" && e.code !== "BANK_UNAVAILABLE") {
-      addMessage("system", `✗ Платёж ${p.payment_id} не исполнен: ${e.message}`);
+    if (e.code !== "OTP_INVALID") {  // список ожидающих — с сервера: платёж мог остаться или уйти
+      addMessage("system", `✗ Платёж ${p.payment_id}: ${e.message}`);
       await refreshPending();
     }
   }
@@ -167,7 +167,7 @@ async function cancelPayment(p, card) {
   try {
     await api(`/api/payments/${p.payment_id}/cancel`, { session_id: state.sessionId });
     addMessage("system", `Платёж ${p.payment_id} отменён`);
-  } catch (e) { card.querySelector(".err").textContent = e.message; }
+  } catch (e) { addMessage("system", `✗ ${e.message}`); }
   await refreshPending();
 }
 
